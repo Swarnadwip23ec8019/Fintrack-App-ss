@@ -46,8 +46,8 @@ export default function Transactions({ user, transactions, setTransactions }) {
       alert("You must be logged in to add transactions.");
       return;
     }
-    
-    const newTx = await addTransaction(user.uid, formData);
+    const txData = { ...formData, amount: Number(formData.amount) };
+    const newTx = await addTransaction(user.uid, txData);
     if (newTx) {
       setTransactions([newTx, ...transactions]); // Prepend for immediate UI update
       

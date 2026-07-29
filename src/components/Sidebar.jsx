@@ -1,4 +1,5 @@
 "use client";
+import { Moon, LogOut, Sun } from "lucide-react";
 
 export default function Sidebar({ user, activeView, setActiveView, toggleTheme, isLightMode, onLogout }) {
   return (
@@ -42,8 +43,9 @@ export default function Sidebar({ user, activeView, setActiveView, toggleTheme, 
       </nav>
 
       <div className="sidebar-bottom-controls">
-        <div className="theme-toggle-wrap" style={{ paddingLeft: "16px" }}>
+        <div className="theme-toggle-wrap">
           <button className="theme-toggle-btn" onClick={toggleTheme}>
+            <span className="toggle-icon" style={{ display: "flex", alignItems: "center", marginRight: 8 }}>{isLightMode ? <Sun size={20} /> : <Moon size={20} />}</span>
             <span className="toggle-text" style={{ padding: 0 }}>{isLightMode ? "Switch to Dark Mode" : "Switch to Light Mode"}</span>
           </button>
         </div>
@@ -55,7 +57,8 @@ export default function Sidebar({ user, activeView, setActiveView, toggleTheme, 
               <strong style={{ color: "var(--text-primary)" }}>{user.email}</strong>
             </div>
           )}
-          <button className="theme-toggle-btn" style={{ color: "var(--danger-color)", paddingLeft: "16px" }} onClick={onLogout}>
+          <button className="theme-toggle-btn" style={{ color: "var(--danger-color)" }} onClick={onLogout}>
+            <span className="toggle-icon" style={{ display: "flex", alignItems: "center", marginRight: 8 }}><LogOut size={20} /></span>
             <span className="toggle-text" style={{ padding: 0 }}>Log Out</span>
           </button>
         </div>

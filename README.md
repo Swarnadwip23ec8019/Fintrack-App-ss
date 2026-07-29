@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# FinTrack Dashboard
 
-## Getting Started
+A full-stack personal finance tracking app built with **Next.js** (frontend) and **Netlify Functions** (backend), deployed on **Netlify**.
 
-First, run the development server:
+## 📁 Project Structure
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+fintrack_dashboard/
+├── frontend/          # Next.js app (UI, components, pages)
+├── backend/           # Netlify serverless functions & Firebase logic
+└── netlify.toml       # Netlify build & deployment config
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started (Local Development)
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### 1. Install dependencies
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Frontend
+cd frontend
+npm install
 
-## Learn More
+# Backend
+cd ../backend
+npm install
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Run the development server
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+cd frontend
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the app.
 
-## Deploy on Vercel
+## 🌐 Deploy on Netlify
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Option 1 — Netlify Dashboard (Recommended)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push this repo to **GitHub**
+2. Go to [netlify.com](https://netlify.com) → **Add new site** → **Import from Git**
+3. Select your repository
+4. Netlify will auto-detect `netlify.toml` and configure:
+   - **Build command**: `npm install && npm run build`
+   - **Publish directory**: `frontend/out`
+   - **Functions directory**: `backend/functions`
+5. Click **Deploy site** ✅
+
+### Option 2 — Netlify CLI
+
+```bash
+npm install -g netlify-cli
+netlify login
+netlify init
+netlify deploy --prod
+```
+
+## 🔑 Environment Variables
+
+Set these in **Netlify Dashboard → Site Settings → Environment Variables**:
+
+```
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+```
+
+> ⚠️ Never commit `.env` files to GitHub.
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 16, React 19, Tailwind CSS |
+| Backend | Netlify Functions (Express + serverless-http) |
+| Database | Firebase Firestore |
+| Auth | Firebase Authentication |
+| Email/OTP | EmailJS |
+| Charts | Chart.js + react-chartjs-2 |

@@ -1,14 +1,10 @@
 "use client";
-import { Wallet, LayoutDashboard, ArrowRightLeft, BarChart3, Moon, LogOut, Sun } from "lucide-react";
 
 export default function Sidebar({ user, activeView, setActiveView, toggleTheme, isLightMode, onLogout }) {
   return (
     <aside>
       <div className="sidebar-logo">
-        <div className="logo-icon">
-          <Wallet size={24} />
-        </div>
-        <h1>FinTrack</h1>
+        <h1 style={{ margin: 0, padding: "10px 0", fontSize: "24px", letterSpacing: "-0.5px" }}>FinTrack</h1>
       </div>
 
       <p className="nav-label">Menu</p>
@@ -19,8 +15,8 @@ export default function Sidebar({ user, activeView, setActiveView, toggleTheme, 
             <button
               className={`nav-btn ${activeView === "dashboard" ? "active" : ""}`}
               onClick={() => setActiveView("dashboard")}
+              style={{ paddingLeft: "16px" }}
             >
-              <span className="nav-icon"><LayoutDashboard size={20} /></span>
               Dashboard
             </button>
           </li>
@@ -28,8 +24,8 @@ export default function Sidebar({ user, activeView, setActiveView, toggleTheme, 
             <button
               className={`nav-btn ${activeView === "transactions" ? "active" : ""}`}
               onClick={() => setActiveView("transactions")}
+              style={{ paddingLeft: "16px" }}
             >
-              <span className="nav-icon"><ArrowRightLeft size={20} /></span>
               Transactions
             </button>
           </li>
@@ -37,8 +33,8 @@ export default function Sidebar({ user, activeView, setActiveView, toggleTheme, 
             <button
               className={`nav-btn ${activeView === "analytics" ? "active" : ""}`}
               onClick={() => setActiveView("analytics")}
+              style={{ paddingLeft: "16px" }}
             >
-              <span className="nav-icon"><BarChart3 size={20} /></span>
               Analytics
             </button>
           </li>
@@ -46,23 +42,21 @@ export default function Sidebar({ user, activeView, setActiveView, toggleTheme, 
       </nav>
 
       <div className="sidebar-bottom-controls">
-        <div className="theme-toggle-wrap">
+        <div className="theme-toggle-wrap" style={{ paddingLeft: "16px" }}>
           <button className="theme-toggle-btn" onClick={toggleTheme}>
-            <span className="toggle-icon">{isLightMode ? <Sun size={20} /> : <Moon size={20} />}</span>
-            <span className="toggle-text">{isLightMode ? "Light Mode" : "Dark Mode"}</span>
+            <span className="toggle-text" style={{ padding: 0 }}>{isLightMode ? "Switch to Dark Mode" : "Switch to Light Mode"}</span>
           </button>
         </div>
 
-        <div className="auth-control-wrap" style={{ marginTop: 10 }}>
+        <div className="auth-control-wrap" style={{ marginTop: 20 }}>
           {user && (
-            <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginBottom: "8px", padding: "0 12px", wordBreak: "break-all" }}>
+            <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginBottom: "8px", padding: "0 16px", wordBreak: "break-all" }}>
               Logged in as:<br/>
               <strong style={{ color: "var(--text-primary)" }}>{user.email}</strong>
             </div>
           )}
-          <button className="theme-toggle-btn" style={{ color: "var(--danger-color)" }} onClick={onLogout}>
-            <span className="toggle-icon"><LogOut size={20} /></span>
-            <span className="toggle-text">Log Out</span>
+          <button className="theme-toggle-btn" style={{ color: "var(--danger-color)", paddingLeft: "16px" }} onClick={onLogout}>
+            <span className="toggle-text" style={{ padding: 0 }}>Log Out</span>
           </button>
         </div>
       </div>

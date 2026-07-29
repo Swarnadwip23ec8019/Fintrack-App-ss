@@ -1,21 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Download, Upload, Pencil, Trash2, Briefcase, ShoppingBag, Utensils, Car, Tv, HeartPulse, Home, Gift, MoreHorizontal } from "lucide-react";
-import { addTransaction, deleteTransaction } from "../lib/db";
-
-const getCategoryIcon = (category) => {
-  switch (category) {
-    case 'Salary': return <Briefcase size={20} />;
-    case 'Shopping': return <ShoppingBag size={20} />;
-    case 'Food': return <Utensils size={20} />;
-    case 'Transport': return <Car size={20} />;
-    case 'Entertainment': return <Tv size={20} />;
-    case 'Health': return <HeartPulse size={20} />;
-    case 'Rent': return <Home size={20} />;
-    case 'Gift': return <Gift size={20} />;
-    default: return <MoreHorizontal size={20} />;
-  }
-};
+import { addTransaction, deleteTransaction, updateTransaction } from "../lib/db";
 
 export default function Transactions({ user, transactions, setTransactions }) {
   const [formData, setFormData] = useState({
@@ -27,6 +12,7 @@ export default function Transactions({ user, transactions, setTransactions }) {
   });
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingId, setEditingId] = useState(null);
   const fileInputRef = useRef(null);
   useEffect(() => {
     // Automatically fetch the user's current local day
@@ -43,21 +29,56 @@ export default function Transactions({ user, transactions, setTransactions }) {
   const handleAddTransaction = async (e) => {
     e.preventDefault();
     if (!user) {
-      alert("You must be logged in to add transactions.");
+      alert("You must be logged in to manage transactions.");
       return;
     }
     const txData = { ...formData, amount: Number(formData.amount) };
-    const newTx = await addTransaction(user.uid, txData);
-    if (newTx) {
-      setTransactions([newTx, ...transactions]); // Prepend for immediate UI update
-      
-      // Reset description and amount, but keep the current local date
-      const today = new Date();
-      const localDate = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
-      setFormData({ ...formData, description: "", amount: "", date: localDate });
+
+    if (editingId) {
+      // Update existing
+      const success = await updateTransaction(user.uid, editingId, txData);
+      if (success) {
+        setTransactions(transactions.map(t => t.id === editingId ? { ...t, ...txData } : t));
+        setEditingId(null);
+      } else {
+        alert("Failed to update transaction.");
+        return;
+      }
     } else {
-      alert("Failed to add transaction. Please try again.");
+      // Add new
+      const newTx = await addTransaction(user.uid, txData);
+      if (newTx) {
+        setTransactions([newTx, ...transactions]); // Prepend for immediate UI update
+      } else {
+        alert("Failed to add transaction. Please try again.");
+        return;
+      }
     }
+
+    // Reset form
+    const today = new Date();
+    const localDate = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+    setFormData({ description: "", amount: "", type: "expense", date: localDate, category: "Food" });
+  };
+
+  const handleEdit = (tx) => {
+    setEditingId(tx.id);
+    setFormData({
+      description: tx.description,
+      amount: tx.amount,
+      type: tx.type,
+      date: tx.date,
+      category: tx.category,
+    });
+    // Scroll to form
+    document.getElementById("transaction-form").scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    const today = new Date();
+    const localDate = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+    setFormData({ description: "", amount: "", type: "expense", date: localDate, category: "Food" });
   };
 
   const handleDelete = async (id) => {
@@ -143,7 +164,7 @@ export default function Transactions({ user, transactions, setTransactions }) {
       </div>
 
       <div className="form-card">
-        <h3>Add New Transaction</h3>
+        <h3>{editingId ? "Edit Transaction" : "Add New Transaction"}</h3>
         <form id="transaction-form" onSubmit={handleAddTransaction} noValidate>
           <div className="form-group">
             <label htmlFor="description">Description</label>
@@ -202,11 +223,16 @@ export default function Transactions({ user, transactions, setTransactions }) {
             </select>
           </div>
 
-          <div className="form-group"></div>
-
-          <button type="submit" className="submit-btn" id="add-tx-btn">
-            + Add Transaction
-          </button>
+          <div className="form-group" style={{ display: 'flex', gap: '10px' }}>
+            <button type="submit" className="submit-btn" id="add-tx-btn" style={{ flex: 1 }}>
+              {editingId ? "Update Transaction" : "+ Add Transaction"}
+            </button>
+            {editingId && (
+              <button type="button" onClick={cancelEdit} className="submit-btn" style={{ flex: 1, backgroundColor: "var(--border)", color: "var(--text-primary)" }}>
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
       </div>
 
@@ -223,10 +249,10 @@ export default function Transactions({ user, transactions, setTransactions }) {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button className="export-btn" id="export-csv-btn" onClick={handleExportCSV}>
-            <Download size={14} style={{ marginRight: 4, display: "inline-block", verticalAlign: "middle" }} /> Export CSV
+            Export CSV
           </button>
           <button className="import-btn" id="import-csv-btn" onClick={() => fileInputRef.current?.click()}>
-            <Upload size={14} style={{ marginRight: 4, display: "inline-block", verticalAlign: "middle" }} /> Import CSV
+            Import CSV
           </button>
           <input 
             type="file" 
@@ -244,10 +270,7 @@ export default function Transactions({ user, transactions, setTransactions }) {
         ) : (
           filteredTransactions.map((tx) => (
             <li key={tx.id} className={tx.type === "income" ? "income-item" : "expense-item"}>
-              <div className="tx-icon">
-                 {getCategoryIcon(tx.category)}
-              </div>
-              <div className="tx-info">
+              <div className="tx-info" style={{ marginLeft: 0 }}>
                 <div className="tx-desc">{tx.description}</div>
                 <div className="tx-meta">{tx.date}</div>
               </div>
@@ -255,12 +278,12 @@ export default function Transactions({ user, transactions, setTransactions }) {
               <span className="tx-amount">
                  {tx.type === "income" ? "+" : "-"}${Number(tx.amount).toFixed(2)}
               </span>
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                <button className="edit-btn" aria-label="Edit transaction">
-                  <Pencil size={14} />
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <button className="edit-btn" aria-label="Edit transaction" onClick={() => handleEdit(tx)} style={{ background: "none", border: "none", color: "var(--primary-color)", fontSize: "13px", cursor: "pointer", padding: 0 }}>
+                  Edit
                 </button>
-                <button className="delete-btn" aria-label="Delete transaction" onClick={() => handleDelete(tx.id)}>
-                  <Trash2 size={14} />
+                <button className="delete-btn" aria-label="Delete transaction" onClick={() => handleDelete(tx.id)} style={{ background: "none", border: "none", color: "var(--danger-color)", fontSize: "13px", cursor: "pointer", padding: 0 }}>
+                  Delete
                 </button>
               </div>
             </li>

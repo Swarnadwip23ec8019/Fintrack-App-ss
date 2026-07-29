@@ -14,7 +14,6 @@ import {
   Filler
 } from "chart.js";
 import { Line, Doughnut, Bar } from "react-chartjs-2";
-import { TrendingUp, PieChart, BarChart2 } from "lucide-react";
 
 ChartJS.register(
   CategoryScale,
@@ -31,6 +30,28 @@ ChartJS.register(
 
 export default function Analytics({ transactions }) {
   const [gridColor, setGridColor] = useState("rgba(148, 163, 184, 0.2)");
+  const [timeframe, setTimeframe] = useState("all");
+
+  const filteredTransactions = transactions.filter(t => {
+    if (timeframe === "all") return true;
+    const txDate = new Date(t.date + "T00:00:00");
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    
+    if (timeframe === "month") {
+      return txDate.getMonth() === today.getMonth() && txDate.getFullYear() === today.getFullYear();
+    }
+    if (timeframe === "year") {
+      return txDate.getFullYear() === today.getFullYear();
+    }
+    if (timeframe === "week") {
+      const oneWeekAgo = new Date(today);
+      oneWeekAgo.setDate(today.getDate() - 7);
+      oneWeekAgo.setHours(0, 0, 0, 0);
+      return txDate >= oneWeekAgo && txDate <= today;
+    }
+    return true;
+  });
 
   useEffect(() => {
     // Dynamic grid color based on theme
@@ -40,7 +61,7 @@ export default function Analytics({ transactions }) {
   }, []);
 
   // 1. Line Chart Data (Net Worth)
-  const sorted = [...transactions].sort((a, b) => a.date.localeCompare(b.date));
+  const sorted = [...filteredTransactions].sort((a, b) => a.date.localeCompare(b.date));
   let runningBalance = 0;
   const balanceHistory = [];
   const dateLabels = [];
@@ -88,8 +109,8 @@ export default function Analytics({ transactions }) {
   };
 
   // 2. Donut Chart Data (Income vs Expenses)
-  const totalIncome = transactions.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
-  const totalExpense = transactions.filter((t) => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
+  const totalIncome = filteredTransactions.filter((t) => t.type === "income").reduce((s, t) => s + Number(t.amount), 0);
+  const totalExpense = filteredTransactions.filter((t) => t.type === "expense").reduce((s, t) => s + Number(t.amount), 0);
 
   const donutData = {
     labels: ["Income", "Expenses"],
@@ -104,7 +125,7 @@ export default function Analytics({ transactions }) {
 
   // 3. Bar Chart Data (Category Spending)
   const categoryMap = {};
-  transactions.forEach((t) => {
+  filteredTransactions.forEach((t) => {
     if (!categoryMap[t.category]) categoryMap[t.category] = { income: 0, expense: 0 };
     if (t.type === "income") categoryMap[t.category].income += Number(t.amount);
     else categoryMap[t.category].expense += Number(t.amount);
@@ -157,8 +178,9 @@ export default function Analytics({ transactions }) {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <label htmlFor="analytics-timeframe-select" style={{ fontSize: 13, color: "var(--text-secondary)", fontWeight: 500 }}>Timeframe:</label>
-          <select id="analytics-timeframe-select">
+          <select id="analytics-timeframe-select" value={timeframe} onChange={(e) => setTimeframe(e.target.value)}>
             <option value="all">All Time</option>
+            <option value="week">This Week</option>
             <option value="month">This Month</option>
             <option value="year">This Year</option>
           </select>
@@ -167,7 +189,7 @@ export default function Analytics({ transactions }) {
 
       <div className="analytics-card" style={{ marginBottom: 18, width: "100%" }}>
         <h3>
-          <TrendingUp size={18} style={{ marginRight: 6, display: "inline-block" }} /> Net Worth Trend
+          Net Worth Trend
         </h3>
         <div className="chart-container" style={{ height: 300 }}>
           <Line data={lineData} options={lineOptions} />
@@ -177,7 +199,7 @@ export default function Analytics({ transactions }) {
       <div className="analytics-grid">
         <div className="analytics-card">
           <h3>
-            <PieChart size={18} style={{ marginRight: 6, display: "inline-block" }} /> Income vs Expenses
+            Income vs Expenses
           </h3>
           <div className="chart-container">
             <Doughnut data={donutData} options={{ responsive: true, maintainAspectRatio: false, cutout: "68%", plugins: { legend: { display: false } } }} />
@@ -186,7 +208,7 @@ export default function Analytics({ transactions }) {
 
         <div className="analytics-card">
           <h3>
-            <BarChart2 size={18} style={{ marginRight: 6, display: "inline-block" }} /> Spending by Category
+            Spending by Category
           </h3>
           <div className="chart-container">
             <Bar data={barData} options={barOptions} />

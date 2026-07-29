@@ -41,6 +41,18 @@ export async function deleteTransaction(uid, id) {
   }
 }
 
+export async function updateTransaction(uid, id, updatedData) {
+  if (!uid || !id) return false;
+  try {
+    const txRef = doc(db, `users/${uid}/transactions`, id);
+    await setDoc(txRef, updatedData, { merge: true });
+    return true;
+  } catch (e) {
+    console.error("Error updating transaction:", e);
+    return false;
+  }
+}
+
 export async function fetchBudgetLimit(uid) {
   if (!uid) return null;
   try {

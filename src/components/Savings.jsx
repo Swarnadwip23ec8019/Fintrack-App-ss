@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Target, Trash2 } from "lucide-react";
 import { fetchSavingsGoals, addSavingsGoal, deleteSavingsGoal } from "../lib/db";
 
 export default function Savings({ user }) {
@@ -81,8 +80,8 @@ export default function Savings({ user }) {
           return (
             <div key={goal.id} className="goal-card">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h4><Target size={16} style={{ display: "inline-block", marginRight: 6 }} /> {goal.name}</h4>
-                <button className="delete-btn" onClick={() => handleDelete(goal.id)}><Trash2 size={14} /></button>
+                <h4>{goal.name}</h4>
+                <button className="delete-btn" onClick={() => handleDelete(goal.id)} style={{ background: "none", border: "none", color: "var(--danger-color)", fontSize: "13px", cursor: "pointer", padding: 0 }}>Delete</button>
               </div>
               <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: "8px 0" }}>Target: ${goal.target} by {goal.date}</p>
               

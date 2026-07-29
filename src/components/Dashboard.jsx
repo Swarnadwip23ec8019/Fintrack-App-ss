@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Wallet, Banknote, TrendingUp, TrendingDown, Target, PieChart, Settings } from "lucide-react";
 import { fetchBudgetLimit, setBudgetLimit, fetchSavingsGoals } from "../lib/db";
 
 export default function Dashboard({ user, transactions, setActiveView }) {
@@ -46,34 +45,29 @@ export default function Dashboard({ user, transactions, setActiveView }) {
       {/* Summary Cards */}
       <div className="widget-container">
         <div className="card balance-card">
-          <div className="card-icon"><Wallet size={24} /></div>
-          <h3>Total Net Worth</h3>
-          <p className="amount">${totalBalance.toFixed(2)}</p>
+          <h3 style={{ marginTop: 0 }}>Total Net Worth</h3>
+          <p className="amount" style={{ marginTop: "12px" }}>${totalBalance.toFixed(2)}</p>
         </div>
 
         <div className="card liquid-card">
-          <div className="card-icon"><Banknote size={24} /></div>
-          <h3>Available Cash</h3>
-          <p className="amount">${totalBalance.toFixed(2)}</p>
+          <h3 style={{ marginTop: 0 }}>Available Cash</h3>
+          <p className="amount" style={{ marginTop: "12px" }}>${totalBalance.toFixed(2)}</p>
         </div>
 
         <div className="card income-card">
-          <div className="card-icon"><TrendingUp size={24} /></div>
-          <h3>Total Income</h3>
-          <p className="amount">${totalIncome.toFixed(2)}</p>
+          <h3 style={{ marginTop: 0 }}>Total Income</h3>
+          <p className="amount" style={{ marginTop: "12px" }}>${totalIncome.toFixed(2)}</p>
         </div>
 
         <div className="card expense-card">
-          <div className="card-icon"><TrendingDown size={24} /></div>
-          <h3>Total Expenses</h3>
-          <p className="amount">${totalExpense.toFixed(2)}</p>
+          <h3 style={{ marginTop: 0 }}>Total Expenses</h3>
+          <p className="amount" style={{ marginTop: "12px" }}>${totalExpense.toFixed(2)}</p>
         </div>
       </div>
 
       {/* Budget Goal Widget */}
       <div className="budget-card">
         <div className="budget-card-header">
-          <span><Target size={20} /></span>
           <h3>Monthly Budget Goal</h3>
         </div>
         <div className="budget-input-row">
@@ -99,10 +93,9 @@ export default function Dashboard({ user, transactions, setActiveView }) {
       <div className="dashboard-grid-two-col">
         <div className="dashboard-widget-card">
           <div className="widget-card-header">
-            <span><PieChart size={20} /></span>
             <h3>Category Budgets</h3>
-            <button className="widget-action-btn" style={{ display: "flex", alignItems: "center", gap: 4 }} onClick={() => alert("Category budgets management coming soon!")}>
-              <Settings size={14} /> Manage
+            <button className="widget-action-btn" onClick={() => alert("Category budgets management coming soon!")}>
+              Manage
             </button>
           </div>
           <div className="widget-list">
@@ -111,9 +104,8 @@ export default function Dashboard({ user, transactions, setActiveView }) {
         </div>
         <div className="dashboard-widget-card">
           <div className="widget-card-header">
-            <span><Target size={20} /></span>
             <h3>Savings Goals</h3>
-            <button className="widget-action-btn" onClick={() => setActiveView("savings")}>+ Add Goal</button>
+            <button className="widget-action-btn" onClick={() => setActiveView("savings")}>Add Goal</button>
           </div>
           <div className="widget-list">
             {savingsGoals.length === 0 ? (

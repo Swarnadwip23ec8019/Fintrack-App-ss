@@ -1,30 +1,10 @@
 {
-  "name": "fintrack_dashboard",
-  "version": "0.1.0",
+  "name": "fintrack-dashboard",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "@emailjs/browser": "^4.4.1",
-    "chart.js": "^4.5.1",
-    "express": "^5.2.1",
-    "firebase": "^12.14.0",
-    "firebase-admin": "^13.10.0",
-    "lucide-react": "^1.27.0",
-    "next": "16.2.7",
-    "react": "19.2.4",
-    "react-chartjs-2": "^5.3.1",
-    "react-dom": "19.2.4",
-    "serverless-http": "^4.0.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.7",
-    "tailwindcss": "^4"
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "install:all": "cd frontend && npm install && cd ../backend && npm install"
   }
 }

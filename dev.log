@@ -1,0 +1,10 @@
+
+> fintrack_dashboard@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.7 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.200.213.248:3000
+✓ Ready in 668ms
+
+ GET / 200 in 3.5s (next.js: 3.2s, application-code: 279ms)

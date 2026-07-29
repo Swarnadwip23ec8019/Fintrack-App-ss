@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Background -->
+  <rect width="512" height="512" rx="128" fill="#1e1e2d"/>
+  
+  <!-- Wallet Outline -->
+  <path d="M120 160h272c26.5 0 48 21.5 48 48v208c0 26.5-21.5 48-48 48H120c-26.5 0-48-21.5-48-48V208c0-26.5 21.5-48 48-48z" stroke="#007bff" stroke-width="32" stroke-linejoin="round"/>
+  
+  <!-- Wallet Flap -->
+  <path d="M72 208v-48c0-26.5 21.5-48 48-48h272c26.5 0 48 21.5 48 48v48" stroke="#007bff" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Fastener / Button -->
+  <rect x="368" y="272" width="72" height="48" rx="16" fill="#007bff"/>
+  
+  <!-- Accent Lines (Money inside) -->
+  <path d="M120 112h216" stroke="#4caf50" stroke-width="24" stroke-linecap="round"/>
+</svg>

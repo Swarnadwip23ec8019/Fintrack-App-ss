@@ -9,9 +9,7 @@ let transactions = [];
 let categories = ['Housing', 'Food', 'Transportation', 'Entertainment', 'Utilities', 'Healthcare', 'Savings'];
 let savingsGoals = [];
 
-// =====================
 // TRANSACTIONS API
-// =====================
 app.get('/api/transactions', (req, res) => {
   res.json({ transactions });
 });
@@ -48,12 +46,10 @@ app.put('/api/transactions/:id', (req, res) => {
   }
 });
 
-// =====================
 // CATEGORIES API
-// =====================
 app.get('/api/categories', (req, res) => {
   res.json({ categories });
 });
 
-// Export wrapped app for Netlify Serverless Functions
+// Exporting for Netlify Serverless Functions
 module.exports.handler = serverless(app);

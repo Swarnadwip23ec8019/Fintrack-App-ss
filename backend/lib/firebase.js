@@ -2,8 +2,6 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-// TODO: Replace this with your own Firebase project configuration!
-// You can get this by going to the Firebase Console -> Project Settings -> General -> Your apps -> Web app
 const firebaseConfig = {
   apiKey: "AIzaSyC6wmofPWDVzkgUMS7GZlqWMgV5380zS4o",
   authDomain: "fintrack-bbbc5.firebaseapp.com",

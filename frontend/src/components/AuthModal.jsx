@@ -56,7 +56,9 @@ export default function AuthModal({ onLogin }) {
 
       // Request secure OTP from backend
       try {
-        const response = await fetch('/api/auth/send-otp', {
+        const isDev = window.location.hostname === 'localhost';
+        const baseUrl = isDev ? 'http://localhost:5000' : '';
+        const response = await fetch(`${baseUrl}/api/auth/send-otp`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email })
@@ -85,7 +87,9 @@ export default function AuthModal({ onLogin }) {
     setIsLoading(true);
     try {
       // Verify OTP securely with backend
-      const response = await fetch('/api/auth/verify-otp', {
+      const isDev = window.location.hostname === 'localhost';
+      const baseUrl = isDev ? 'http://localhost:5000' : '';
+      const response = await fetch(`${baseUrl}/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

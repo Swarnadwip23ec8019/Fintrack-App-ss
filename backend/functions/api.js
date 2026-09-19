@@ -155,3 +155,4 @@ app.get('/api/categories', (req, res) => {
 
 // Export wrapped app for Netlify Serverless Functions
 module.exports.handler = serverless(app);
+module.exports.app = app;

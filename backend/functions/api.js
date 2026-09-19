@@ -54,7 +54,9 @@ app.post('/api/auth/send-otp', async (req, res) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(payload)
+          'Content-Length': Buffer.byteLength(payload),
+          'Origin': 'http://localhost:3000',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
         }
       };
 

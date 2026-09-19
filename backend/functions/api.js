@@ -36,26 +36,50 @@ app.post('/api/auth/send-otp', async (req, res) => {
     const EMAILJS_TEMPLATE_ID = "template_x3kvbms";
 
     if (EMAILJS_PUBLIC_KEY !== "YOUR_PUBLIC_KEY") {
-      await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          service_id: EMAILJS_SERVICE_ID,
-          template_id: EMAILJS_TEMPLATE_ID,
-          user_id: EMAILJS_PUBLIC_KEY,
-          template_params: {
-            to_email: email,
-            otp_code: otp,
-            app_name: "FinTrack Dashboard"
-          }
-        })
+      const payload = JSON.stringify({
+        service_id: EMAILJS_SERVICE_ID,
+        template_id: EMAILJS_TEMPLATE_ID,
+        user_id: EMAILJS_PUBLIC_KEY,
+        template_params: {
+          to_email: email,
+          otp_code: otp,
+          app_name: "FinTrack Dashboard"
+        }
+      });
+
+      const options = {
+        hostname: 'api.emailjs.com',
+        port: 443,
+        path: '/api/v1.0/email/send',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(payload)
+        }
+      };
+
+      await new Promise((resolve, reject) => {
+        const req = require('https').request(options, (res) => {
+          let data = '';
+          res.on('data', chunk => data += chunk);
+          res.on('end', () => {
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+              resolve();
+            } else {
+              reject(new Error(`EmailJS API error: ${res.statusCode} ${data}`));
+            }
+          });
+        });
+        req.on('error', reject);
+        req.write(payload);
+        req.end();
       });
     } else {
       console.log(`[Mock Email] OTP for ${email} is ${otp}`);
     }
   } catch (error) {
-    console.error("Failed to send email:", error);
-    return res.status(500).json({ error: 'Failed to send OTP email' });
+    console.error("Failed to send email:", error.message);
+    return res.status(500).json({ error: 'Failed to send OTP email: ' + error.message });
   }
 
   // Return the hash and expiry, but NEVER the actual OTP

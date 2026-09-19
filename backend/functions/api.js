@@ -1,5 +1,6 @@
 const express = require('express');
 const serverless = require('serverless-http');
+const crypto = require('crypto');
 
 const app = express();
 app.use(express.json());
@@ -8,6 +9,79 @@ app.use(express.json());
 let transactions = [];
 let categories = ['Housing', 'Food', 'Transportation', 'Entertainment', 'Utilities', 'Healthcare', 'Savings'];
 let savingsGoals = [];
+
+const OTP_SECRET = process.env.OTP_SECRET || 'fintrack_super_secret_otp_key';
+
+// =====================
+// AUTH / OTP API
+// =====================
+app.post('/api/auth/send-otp', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  // Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  // Set expiry to 10 minutes from now
+  const expiryTime = Date.now() + 10 * 60 * 1000;
+  
+  // Create a hash of the email, otp, and expiry
+  const data = `${email}.${otp}.${expiryTime}`;
+  const hash = crypto.createHmac('sha256', OTP_SECRET).update(data).digest('hex');
+
+  // Send Email using EmailJS REST API
+  try {
+    const EMAILJS_PUBLIC_KEY = "PqHBn1Bi64mEz68kd";
+    const EMAILJS_SERVICE_ID = "service_a8tkha3";
+    const EMAILJS_TEMPLATE_ID = "template_x3kvbms";
+
+    if (EMAILJS_PUBLIC_KEY !== "YOUR_PUBLIC_KEY") {
+      await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service_id: EMAILJS_SERVICE_ID,
+          template_id: EMAILJS_TEMPLATE_ID,
+          user_id: EMAILJS_PUBLIC_KEY,
+          template_params: {
+            to_email: email,
+            otp_code: otp,
+            app_name: "FinTrack Dashboard"
+          }
+        })
+      });
+    } else {
+      console.log(`[Mock Email] OTP for ${email} is ${otp}`);
+    }
+  } catch (error) {
+    console.error("Failed to send email:", error);
+    return res.status(500).json({ error: 'Failed to send OTP email' });
+  }
+
+  // Return the hash and expiry, but NEVER the actual OTP
+  res.json({ hash, expiryTime, message: 'OTP sent successfully' });
+});
+
+app.post('/api/auth/verify-otp', (req, res) => {
+  const { email, otp, hash, expiryTime } = req.body;
+
+  if (!email || !otp || !hash || !expiryTime) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  if (Date.now() > expiryTime) {
+    return res.status(400).json({ error: 'OTP has expired' });
+  }
+
+  const data = `${email}.${otp}.${expiryTime}`;
+  const expectedHash = crypto.createHmac('sha256', OTP_SECRET).update(data).digest('hex');
+
+  if (expectedHash === hash) {
+    return res.json({ success: true, message: 'OTP verified successfully' });
+  } else {
+    return res.status(400).json({ error: 'Invalid OTP' });
+  }
+});
 
 // =====================
 // TRANSACTIONS API

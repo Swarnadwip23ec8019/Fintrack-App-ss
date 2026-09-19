@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { auth } from "../lib/firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, fetchSignInMethodsForEmail } from "firebase/auth";
-import { sendEmailOTP, generateOTP } from "../lib/email";
 
 export default function AuthModal({ onLogin }) {
   const [view, setView] = useState("main"); // main, otp, forgot-email, forgot-reset
@@ -11,7 +10,8 @@ export default function AuthModal({ onLogin }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   
-  const [currentOTP, setCurrentOTP] = useState(null);
+  const [otpHash, setOtpHash] = useState(null);
+  const [otpExpiry, setOtpExpiry] = useState(null);
   const [otpInput, setOtpInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -54,15 +54,26 @@ export default function AuthModal({ onLogin }) {
         }
       }
 
-      // Generate and Send OTP
-      const otp = generateOTP();
-      setCurrentOTP(otp);
-      
-      const success = await sendEmailOTP(email, otp);
-      if (success) {
-        setView("otp");
-      } else {
-        alert("Failed to send OTP to your email.");
+      // Request secure OTP from backend
+      try {
+        const response = await fetch('/api/auth/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          setOtpHash(data.hash);
+          setOtpExpiry(data.expiryTime);
+          setView("otp");
+        } else {
+          alert(data.error || "Failed to send OTP to your email.");
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Error connecting to server to send OTP.");
       }
       setIsLoading(false);
     }
@@ -70,17 +81,34 @@ export default function AuthModal({ onLogin }) {
 
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
-    if (otpInput !== currentOTP) {
-      alert("Invalid OTP! Try again.");
-      return;
-    }
-
+    
     setIsLoading(true);
     try {
+      // Verify OTP securely with backend
+      const response = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email, 
+          otp: otpInput, 
+          hash: otpHash, 
+          expiryTime: otpExpiry 
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        alert(data.error || "Invalid OTP! Try again.");
+        setIsLoading(false);
+        return;
+      }
+
+      // If backend verified OTP successfully, create the user
       await createUserWithEmailAndPassword(auth, email, password);
       onLogin(); // Authentication listener in page.js will also catch this
     } catch (err) {
-      alert(err.message);
+      alert(err.message || "Failed to verify OTP or create account.");
     }
     setIsLoading(false);
   };
